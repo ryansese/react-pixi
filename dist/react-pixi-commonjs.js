@@ -602,9 +602,7 @@ var isUnitlessNumber = {
   columnCount: true,
   flex: true,
   flexGrow: true,
-  flexPositive: true,
   flexShrink: true,
-  flexNegative: true,
   fontWeight: true,
   lineClamp: true,
   lineHeight: true,
@@ -617,9 +615,7 @@ var isUnitlessNumber = {
 
   // SVG-related properties
   fillOpacity: true,
-  strokeDashoffset: true,
-  strokeOpacity: true,
-  strokeWidth: true
+  strokeOpacity: true
 };
 
 /**
@@ -3706,7 +3702,6 @@ var HTMLDOMPropertyConfig = {
     headers: null,
     height: MUST_USE_ATTRIBUTE,
     hidden: MUST_USE_ATTRIBUTE | HAS_BOOLEAN_VALUE,
-    high: null,
     href: null,
     hrefLang: null,
     htmlFor: null,
@@ -3717,7 +3712,6 @@ var HTMLDOMPropertyConfig = {
     lang: null,
     list: MUST_USE_ATTRIBUTE,
     loop: MUST_USE_PROPERTY | HAS_BOOLEAN_VALUE,
-    low: null,
     manifest: MUST_USE_ATTRIBUTE,
     marginHeight: null,
     marginWidth: null,
@@ -3732,7 +3726,6 @@ var HTMLDOMPropertyConfig = {
     name: null,
     noValidate: HAS_BOOLEAN_VALUE,
     open: HAS_BOOLEAN_VALUE,
-    optimum: null,
     pattern: null,
     placeholder: null,
     poster: null,
@@ -3746,7 +3739,6 @@ var HTMLDOMPropertyConfig = {
     rowSpan: null,
     sandbox: null,
     scope: null,
-    scoped: HAS_BOOLEAN_VALUE,
     scrolling: null,
     seamless: MUST_USE_ATTRIBUTE | HAS_BOOLEAN_VALUE,
     selected: MUST_USE_PROPERTY | HAS_BOOLEAN_VALUE,
@@ -3788,9 +3780,7 @@ var HTMLDOMPropertyConfig = {
     itemID: MUST_USE_ATTRIBUTE,
     itemRef: MUST_USE_ATTRIBUTE,
     // property is supported for OpenGraph in meta tags.
-    property: null,
-    // IE-only attribute that controls focus behavior
-    unselectable: MUST_USE_ATTRIBUTE
+    property: null
   },
   DOMAttributeNames: {
     acceptCharset: 'accept-charset',
@@ -4400,7 +4390,7 @@ if ("production" !== process.env.NODE_ENV) {
   }
 }
 
-React.version = '0.13.2';
+React.version = '0.13.1';
 
 module.exports = React;
 
@@ -6438,14 +6428,6 @@ var ReactCompositeComponentMixin = {
         this.getName() || 'a component'
       ) : null);
       ("production" !== process.env.NODE_ENV ? warning(
-        !inst.getDefaultProps ||
-        inst.getDefaultProps.isReactClassApproved,
-        'getDefaultProps was defined on %s, a plain JavaScript class. ' +
-        'This is only supported for classes created using React.createClass. ' +
-        'Use a static property to define defaultProps instead.',
-        this.getName() || 'a component'
-      ) : null);
-      ("production" !== process.env.NODE_ENV ? warning(
         !inst.propTypes,
         'propTypes was defined as an instance property on %s. Use a static ' +
         'property to define propTypes instead.',
@@ -7014,7 +6996,7 @@ var ReactCompositeComponentMixin = {
         this._renderedComponent,
         thisID,
         transaction,
-        this._processChildContext(context)
+        context
       );
       this._replaceNodeWithMarkupByID(prevComponentID, nextMarkup);
     }
@@ -7888,8 +7870,6 @@ ReactDOMComponent.Mixin = {
       if (propKey === STYLE) {
         if (nextProp) {
           nextProp = this._previousStyleCopy = assign({}, nextProp);
-        } else {
-          this._previousStyleCopy = null;
         }
         if (lastProp) {
           // Unset styles on `lastProp` but not on `nextProp`.
@@ -10510,9 +10490,9 @@ function warnForPropsMutation(propName, element) {
 
   ("production" !== process.env.NODE_ENV ? warning(
     false,
-    'Don\'t set .props.%s of the React component%s. Instead, specify the ' +
-    'correct value when initially creating the element or use ' +
-    'React.cloneElement to make a new element with updated props.%s',
+    'Don\'t set .props.%s of the React component%s. ' +
+    'Instead, specify the correct value when ' +
+    'initially creating the element.%s',
     propName,
     elementInfo,
     ownerInfo
@@ -18453,7 +18433,6 @@ assign(
 function isInternalComponentType(type) {
   return (
     typeof type === 'function' &&
-    typeof type.prototype !== 'undefined' &&
     typeof type.prototype.mountComponent === 'function' &&
     typeof type.prototype.receiveComponent === 'function'
   );
@@ -19733,6 +19712,22 @@ module.exports = warning;
 
 }).call(this,require('_process'))
 },{"./emptyFunction":115,"_process":1}],156:[function(require,module,exports){
+/*
+ * Copyright (c) 2014-2015 Gary Haussmann
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 //
 // time to monkey-patch React!
 //
@@ -19793,7 +19788,7 @@ var ReactPIXI_updateRenderedComponent = function(transaction, context) {
     return;
   }
   
-  // This is a THREE node, do a special THREE version of updateComponent
+  // This is a PIXI node, do a special PIXI version of updateComponent
   var prevRenderedElement = prevComponentInstance._currentElement;
   var nextRenderedElement = this._renderValidatedComponent();
   
@@ -19833,7 +19828,7 @@ var ReactPIXI_updateRenderedComponent = function(transaction, context) {
     // fixup _mountImage as well
     this._mountImage = nextDisplayObject;
     
-    // overwrite the old child
+    // overwrite the reference to the old child
     displayObjectParent.addChildAt(nextDisplayObject, displayObjectIndex);
   }
 };
@@ -19847,7 +19842,7 @@ var buildPatchedReceiveComponent = function(oldReceiveComponent) {
   var newReceiveComponent = function(
         internalInstance, nextElement, transaction, context
   ) {
-    // if the instance is a ReactCompositeComponentWrapper, fixed it if needed
+    // if the instance is a ReactCompositeComponentWrapper, fix it if needed
     var ComponentPrototype = Object.getPrototypeOf(internalInstance);
 
     // if this is a composite component it wil have _updateRenderedComponent defined
@@ -19867,7 +19862,7 @@ var buildPatchedReceiveComponent = function(oldReceiveComponent) {
 
 var ReactPIXIMonkeyPatch = function() {
 
-  // in order version we patched ReactCompositeComponentMixin, but in 0.13 the
+  // in older versions we patched ReactCompositeComponentMixin, but in 0.13 the
   // prototype is wrapped in a ReactCompositeComponentWrapper so monkey-patching
   // ReactCompositeComponentMixin won't actually have any effect.
   //
@@ -19896,7 +19891,7 @@ module.exports = ReactPIXIMonkeyPatch;
 (function (global){
 
 /*
- * Copyright (c) 2014 Gary Haussmann
+ * Copyright (c) 2014-2015 Gary Haussmann
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19915,6 +19910,8 @@ module.exports = ReactPIXIMonkeyPatch;
 // Lots of code here is based on react-art: https://github.com/facebook/react-art
 //
 
+
+
 "use strict";
 
 var React = require('react');
@@ -19927,6 +19924,7 @@ var ReactUpdates = require('react/lib/ReactUpdates');
 
 var assign = require('react/lib/Object.assign');
 var emptyObject = require('react/lib/emptyObject');
+var invariant = require('react/lib/invariant');
 
 var monkeypatch = require('./ReactPIXIMonkeyPatch');
 monkeypatch();
@@ -20077,10 +20075,16 @@ var DisplayObjectContainerMixin = assign({}, DisplayObjectMixin, ReactMultiChild
   createChild: function(child, childDisplayObject) {
     child._mountImage = childDisplayObject;
     this._displayObject.addChild(childDisplayObject);
+    if (child.customDidAttach) {
+      child.customDidAttach(childDisplayObject);
+    }
   },
 
   removeChild: function(child) {
     var childDisplayObject = child._mountImage;
+    if (child.customWillDetach) {
+      child.customWillDetach(childDisplayObject);
+    }
 
     this._displayObject.removeChild(childDisplayObject);
     child._mountImage = null;
@@ -20111,8 +20115,7 @@ var DisplayObjectContainerMixin = assign({}, DisplayObjectMixin, ReactMultiChild
     for (var key in this._renderedChildren) {
       if (this._renderedChildren.hasOwnProperty(key)) {
         var child = this._renderedChildren[key];
-        child._mountImage = mountedImages[i];
-        this._displayObject.addChild(child._mountImage);
+	DisplayObjectContainerMixin.createChild.call(this, child, mountedImages[i]);
         i++;
       }
     }
@@ -20211,7 +20214,7 @@ var PIXIStage = React.createClass({
   componentDidUpdate: function(oldProps) {
     var newProps = this.props;
      
-    if (newProps.width != oldProps.width || newProps.width != oldProps.height) {
+    if (newProps.width != oldProps.width || newProps.height != oldProps.height) {
       this._pixirenderer.resize(+newProps.width, +newProps.height);
     }
 
@@ -20439,11 +20442,16 @@ var TextComponentMixin = {
   }
 };
 
+// the linter (jshint) doesn't like the shadowing of 'Text' here but it's OK since
+// we're in a commonjs module
+
+// jshint -W079
 var Text = createPIXIComponent(
   'Text',
   DisplayObjectContainerMixin,
   CommonDisplayObjectContainerImplementation,
   TextComponentMixin );
+// jshint +W079
 
 //
 // BitmapText
@@ -20494,11 +20502,16 @@ var CustomDisplayObjectImplementation = {
   mountComponent: function(rootID, transaction, context) {
 
     var props = this._currentElement.props;
-    this._displayObject = this.customDisplayObject(arguments);
+    invariant(this.customDisplayObject, "No customDisplayObject method found for a CustomPIXIComponent");
+    this._displayObject = this.customDisplayObject(props);
+
     this.applyDisplayObjectProps({}, props);
-    this.applyCustomProps({}, props);
+    if (this.customApplyProps) {
+      this.customApplyProps(this._displayObject, {}, props);
+    }
 
     this.mountAndAddChildren(props.children, transaction, context);
+
     return this._displayObject;
   },
 
@@ -20506,17 +20519,36 @@ var CustomDisplayObjectImplementation = {
     var newProps = nextElement.props;
     var oldProps = this._currentElement.props;
 
-    this.applyDisplayObjectProps(oldProps, newProps);
-    this.applyCustomProps(oldProps, newProps);
+    if (this.customApplyProps) {
+      this.customApplyProps(this._displayObject, oldProps, newProps);
+    }
+    else {
+      this.applyDisplayObjectProps(oldProps, newProps);
+    }
 
     this.updateChildren(newProps.children, transaction, context);
     this._currentElement = nextElement;
   },
 
+  // customDidAttach and customWillDetach are invoked by DisplayObjectContainerMixin,
+  // which is where the attach/detach actually occurs
+
   unmountComponent: function() {
     this.unmountChildren();
   }
 };
+
+// functions required for a custom components:
+//
+// -customDisplayObject(props) to create a new display objects
+//
+// -customDidAttach(displayObject) to do stuff after attaching (attaching happens AFTER mounting)
+//
+// -customApplyProps(displayObject, oldProps, newProps) to apply custom props to your component;
+//           note this disables the normal transfer of props to the displayObject; call
+//           this.applyDisplayObjectProps(oldProps,newProps) in your custom method if you want that
+//
+// -customWillDetach(displayObject) to cleanup anything before detaching (detach happens BEFORE unmounting)
 
 var CustomPIXIComponent = function (custommixin) {
   return createPIXIComponent(
@@ -20551,7 +20583,7 @@ module.exports =  assign(PIXIComponents, {
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ReactPIXIMonkeyPatch":156,"react":"react","react/lib/Object.assign":27,"react/lib/ReactElement":58,"react/lib/ReactMultiChild":72,"react/lib/ReactUpdates":88,"react/lib/emptyObject":116}],"react":[function(require,module,exports){
+},{"./ReactPIXIMonkeyPatch":156,"react":"react","react/lib/Object.assign":27,"react/lib/ReactElement":58,"react/lib/ReactMultiChild":72,"react/lib/ReactUpdates":88,"react/lib/emptyObject":116,"react/lib/invariant":136}],"react":[function(require,module,exports){
 module.exports = require('./lib/React');
 
 },{"./lib/React":29}]},{},[]);
