@@ -544,6 +544,35 @@ var TilingSprite = createPIXIComponent(
   TilingSpriteComponentMixin );
 
 //
+// MovieClip
+//
+
+var MovieClipComponentMixin = {
+  createDisplayObject: function () {
+    let props = this._currentElement.props;
+    return new PIXI.extra.MovieClip(PIXI.fromFrame(props.frames), props.width, props.height);
+  },
+
+  applySpecificDisplayObjectProps: function (oldProps, newProps) {
+    this.transferDisplayObjectPropsByName(oldProps, newProps,
+      {
+        'animationSpeed': 1,
+        'loop': true,
+        'onComplete': null,
+        '_currentTime': 0,
+        'playing': false
+      });
+    SpriteComponentMixin.applySpecificDisplayObjectProps(this,arguments);
+  }
+}
+
+var MovieClip = createPIXIComponent(
+  'MovieClip',
+  DisplayObjectContainerMixin,
+  CommonDisplayObjectContainerImplementation,
+  MovieClipComponentMixin );
+
+//
 // Text
 //
 
@@ -698,7 +727,8 @@ var PIXIComponents = {
   Sprite : Sprite,
   Text : Text,
   BitmapText : BitmapText,
-  TilingSprite : TilingSprite
+  TilingSprite : TilingSprite,
+  MovieClip : MovieClip,
 };
 
 var PIXIFactories = {};
