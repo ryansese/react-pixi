@@ -550,7 +550,7 @@ var TilingSprite = createPIXIComponent(
 var MovieClipComponentMixin = {
   createDisplayObject: function () {
     let props = this._currentElement.props;
-    return new PIXI.extra.MovieClip(PIXI.fromFrame(props.frames), props.width, props.height);
+    return new PIXI.extra.MovieClip(PIXI.Texture.fromFrame(props.frames), props.width, props.height);
   },
 
   applySpecificDisplayObjectProps: function (oldProps, newProps) {

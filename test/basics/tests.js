@@ -21,5 +21,6 @@ describe("React and React.PIXI modules", function() {
     expect(ReactPIXI.Sprite).toBeDefined();
     expect(ReactPIXI.BitmapText).toBeDefined();
     expect(ReactPIXI.TilingSprite).toBeDefined();
+    expect(ReactPIXI.MovieClip).toBeDefined();
   });
 });
